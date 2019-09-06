@@ -9,4 +9,9 @@ public interface RedisClient {
     public String get(final String key);
 
     public String set(final String key,String value);
+
+    public String ping();
+
+    public String ping(final String arg);
+
 }

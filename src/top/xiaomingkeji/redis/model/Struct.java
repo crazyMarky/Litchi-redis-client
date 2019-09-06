@@ -6,7 +6,8 @@ package top.xiaomingkeji.redis.model;
  */
 public enum Struct {
     GET("get",100),
-    SET("set",101)
+    SET("set",101),
+    PING("ping",102),
     ;
     private String struct;
     private Integer code;

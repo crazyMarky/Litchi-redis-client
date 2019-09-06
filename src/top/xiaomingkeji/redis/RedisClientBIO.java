@@ -1,5 +1,6 @@
 package top.xiaomingkeji.redis;
 
+import top.xiaomingkeji.redis.format.MessageFormater;
 import top.xiaomingkeji.redis.model.Arg;
 
 import java.io.IOException;
@@ -50,6 +51,16 @@ public class RedisClientBIO implements RedisClient{
         }
     }
 
+    private  void close(){
+        try {
+            outputStream.flush();
+            inputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 获取实例
      * @param arg
@@ -91,39 +102,66 @@ public class RedisClientBIO implements RedisClient{
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-            try {
-                outputStream.flush();
-                inputStream.close();
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.close();
         }
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
-        Buffer clear = byteBuffer.clear();
         char[] array = decode.array();
-        String formatSetMessage = this.formatSetMessage(array);
+        String formatSetMessage = MessageFormater.formatSetMessage(array);
         return  formatSetMessage;
     }
 
-    //去除不必要的元素
-    private String formatSetMessage(char[] message){
-        int j = 0;
-        char[] result = new char[message.length];
-        if (message[0] == '+'){
-            for (int i = 1; i < message.length; i++) {
-                if (message[i]!='\r'&&message[i]!='\n'&&message[i]!='\u0000'){
-                    result[j++]=message[i];
-                }
-            }
+    @Override
+    public String ping(String arg) {
+        conneted();
+        StringBuilder sb = new StringBuilder();
+        sb.append("*2").append("\r\n");
+        sb.append("$4").append("\r\n");
+        sb.append("PING").append("\r\n");
+        sb.append("$").append(arg.length()).append("\r\n");
+        sb.append(arg).append("\r\n");
+        byte[] bytes= new byte[1024];
+        try {
+            ByteBuffer encode = charset.encode(sb.toString());
+            outputStream.write(encode.array());
+            inputStream.read(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            this.close();
         }
-        char[] result2 = new char[j];
-        for (int i = 0; i < result2.length; i++) {
-            result2[i]=result[i];
-        }
-        return new String(result2);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        CharBuffer decode = charset.decode(byteBuffer);
+        char[] array = decode.array();
+        String formatPingMessage = MessageFormater.formatPingMessage(array);
+        return  formatPingMessage;
     }
+
+    @Override
+    public String ping() {
+        conneted();
+        StringBuilder sb = new StringBuilder();
+        sb.append("*1").append("\r\n");
+        sb.append("$4").append("\r\n");
+        sb.append("PING").append("\r\n");
+        byte[] bytes= new byte[1024];
+        try {
+            ByteBuffer encode = charset.encode(sb.toString());
+            outputStream.write(encode.array());
+            inputStream.read(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            this.close();
+        }
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        CharBuffer decode = charset.decode(byteBuffer);
+        char[] array = decode.array();
+        String formatPingMessage = MessageFormater.formatPingMessage(array);
+        return  formatPingMessage;
+    }
+
+
 
     /**
      * 根据键获取一个值
@@ -145,53 +183,15 @@ public class RedisClientBIO implements RedisClient{
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                outputStream.flush();
-                inputStream.close();
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.close();
         }
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
         char[] array = decode.array();
-        String formatGetMessage = this.formatGetMessage(array);
+        String formatGetMessage = MessageFormater.formatGetMessage(array);
         return  formatGetMessage;
     }
 
-    //去除不必要的元素
-    private  String formatGetMessage(char[] message){
-        char[] result = null;
-        char[] number;
-        int numberInt;
-        int start = 0;
-        int end = 0;
-        for (int i = 0; i < message.length; i++) {
-            if ( message[i] == '$'){
-                start = i+1;
-            }
-            if (message[i]=='\r' && message[i+1]=='\n'){
-                end  = i;
-                break;
-            }
-        }
-        int n = 0;
-        number = new char[end-start];
-        for (int i = 0; i < end -1 ; i++) {
-            number[n++]=message[start+i];
-        }
-        n = 0;
-        numberInt = Integer.valueOf(new String(number));
-        result = new char[numberInt+1];
-        for (int i = end+2; i <= numberInt+end+1; i++) {
-            result[n++] = message[i];
-        }
-        if (message[1]=='-' && message[2]=='1'){
-            return "(nil)\n";
-        }
-        return new String(result);
-    }
 
 
 

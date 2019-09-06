@@ -31,7 +31,7 @@ public class Handler {
     public void handleGet( List<String> strings){
         int size = strings.size();
         if (size != 2){
-            System.out.println("Get command don`t match argument");
+            System.out.println("GET command don`t match argument");
             return;
         }
         if (!"".equals(strings.get(1))){
@@ -44,7 +44,7 @@ public class Handler {
     public void handleSet( List<String> strings){
         int size = strings.size();
         if (size != 3){
-            System.out.println("Get command don`t match argument");
+            System.out.println("SET command don`t match argument");
             return;
         }
         if (!"".equals(strings.get(1))){
@@ -55,6 +55,23 @@ public class Handler {
             }
         }else {
             System.out.println("Invalid key "+strings.get(1));
+        }
+    }
+
+    /**
+     * 处理ping
+     * @param strings
+     */
+    public void handlePing( List<String> strings){
+        int size = strings.size();
+        if (size >= 3){
+            System.out.println("PING command don`t match argument");
+            return;
+        }
+        if (!"".equals(strings.get(1))){
+            System.out.println(redisClient.ping(strings.get(1)));
+        }else {
+            System.out.println(redisClient.ping());
         }
     }
 }

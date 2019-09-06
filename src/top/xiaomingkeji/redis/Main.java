@@ -7,6 +7,7 @@ import top.xiaomingkeji.redis.model.Command;
 import top.xiaomingkeji.redis.model.Struct;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -46,20 +47,17 @@ public class Main {
         //取出客户端实例
         RedisClient redisClientBIO = RedisClientBIO.getInstance(enterArg);
         handler = Handler.getInstance(redisClientBIO);
-
-        Scanner scanner = new Scanner(System.in);
+        InputStream inputStream = System.in;
+        Scanner scanner = new Scanner(inputStream);
         //监听键盘的输入
         while (true){
-            System.out.print(genHeadGuideText(enterArg));
             String next = "";
-
+            System.out.print(genHeadGuideText(enterArg));
             try{
                 next = scanner.nextLine();
             }catch (Exception e){
                 System.out.println(genDisconnectText(enterArg));
             }
-            System.out.println("input:"+next);
-
             if ("".equals(next)){
                 System.out.println("empty enter");
                 continue;
@@ -75,7 +73,9 @@ public class Main {
                 handler.handleGet(strings);
             } else if (Struct.SET.getStruct().equals(strings.get(0))){
                 handler.handleSet(strings);
-            } else {
+            }  else if (Struct.PING.getStruct().equals(strings.get(0))){
+                handler.handlePing(strings);
+            }else {
                 System.out.println("Invalid strut "+strings.get(0));
             }
         }
