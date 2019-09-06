@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 /**客户端实现类
  * @author liaohuiming
@@ -78,7 +80,22 @@ public class RedisClientBIO implements RedisClient{
         }
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
-        return  decode.toString();
+        char[] array = decode.array();
+        String formatSetMessage = this.formatSetMessage(array);
+        return  formatSetMessage;
+    }
+
+    private String formatSetMessage(char[] message){
+        int j = 0;
+        char[] result = new char[message.length];
+        if (message[0] == '+'){
+            for (int i = 1; i < message.length; i++) {
+                if (message[i]!='\r'||message[i]!='\n'||message[i]!='\u0000'){
+                    result[j++]=message[i];
+                }
+            }
+        }
+        return new String(result);
     }
 
     /**
@@ -102,7 +119,42 @@ public class RedisClientBIO implements RedisClient{
         }
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
-        return  decode.toString();
+        char[] array = decode.array();
+        String formatGetMessage = this.formatGetMessage(array);
+        return  formatGetMessage;
+    }
+
+    private  String formatGetMessage(char[] message){
+        char[] result = null;
+        char[] number;
+        int numberInt;
+        int start = 0;
+        int end = 0;
+        for (int i = 0; i < message.length; i++) {
+            if ( message[i] == '$'){
+                start = i+1;
+            }
+            if (message[i]=='\r' && message[i+1]=='\n'){
+                end  = i;
+                break;
+            }
+        }
+        int n = 0;
+        number = new char[end-start];
+        for (int i = 0; i < end -1 ; i++) {
+            number[n++]=message[start+i];
+        }
+        n = 0;
+        numberInt = Integer.valueOf(new String(number));
+        result = new char[numberInt+1];
+        for (int i = end+2; i <= numberInt+end+1; i++) {
+            result[n++] = message[i];
+        }
+        if (message[1]=='-'){
+            return "(nil)\n";
+        }
+        result[result.length-1]='\n';
+        return new String(result);
     }
 
 

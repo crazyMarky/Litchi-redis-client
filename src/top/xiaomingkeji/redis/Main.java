@@ -19,81 +19,84 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static RedisClientBIO redisClientBIO;
+    private static  float version = 1.1f;
 
-    private static  Integer version = 1;
+    private static Handler handler ;
 
     public static void main (String[] args){
-        System.out.println("welcome use myRedisClient V"+version+",author:liaohuiming77@live.com");
-        Arg enterArg = null;
+        System.out.println("welcome use Litchi-redis-client v"+version+",author:liaohuiming");
+        Arg enterArg = new Arg();
         //参数输入
         for (int i = 0; i < args.length-1; i++) {
-            enterArg = new Arg();
             if (Command.HOST.getCommand().equals(args[i])){
-                if (isValidArg(args[i+1])){
+                if (isValidAddr(args[i+1])){
                     enterArg.setHost(args[i+1]);
                     i++;
                 }
             }else if (Command.PORT.getCommand().equals(args[i])){
-                if (isValidArg(args[i+1])){
+                if (isValidPort(args[i+1])){
                     enterArg.setPort(Integer.valueOf(args[i+1]));
                     i++;
                 }
             }
         }
-        if (enterArg == null ){
-            enterArg = new Arg();
-            enterArg.setHost(Constants.DEFALUT_HOST);
-            enterArg.setPort(Constants.DEFALUT_PORT);
+
+        //检查参数
+        checkArg(enterArg);
+        //取出客户端实例
+        RedisClient redisClientBIO = RedisClientBIO.getInstance(enterArg);
+        handler = Handler.getInstance(redisClientBIO);
+
+        Scanner scanner = new Scanner(System.in);
+        //监听键盘的输入
+        while (true){
+            System.out.print(genHeadGuideText(enterArg));
+            String next = scanner.nextLine();
+            if ("".equals(next)){
+                System.out.println("empty enter");
+                continue;
+            }
+            String[] s = next.split(" ");
+            List<String> strings = Arrays.asList(s);
+            if (strings == null || strings.size() < 0){
+                System.out.println("empty enter");
+                continue;
+            }
+
+            if (Struct.GET.getStruct().equals(strings.get(0))){
+                handler.handleGet(strings);
+            } else if (Struct.SET.getStruct().equals(strings.get(0))){
+                handler.handleSet(strings);
+            } else {
+                System.out.println("Invalid strut "+strings.get(0));
+            }
         }
+    }
+
+    private static String genHeadGuideText(Arg enterArg){
+       return String.format("%s:%s>", enterArg.getHost(),enterArg.getPort());
+    }
+
+    private static void checkArg(Arg enterArg){
         if (enterArg.getHost() == null){
             enterArg.setHost(Constants.DEFALUT_HOST);
         }
         if (enterArg.getPort() == null){
             enterArg.setPort(Constants.DEFALUT_PORT);
         }
-        redisClientBIO = RedisClientBIO.getInstance(enterArg);
-
-
-        Scanner scanner = new Scanner(System.in);
-        while (true){
-            System.out.print(enterArg.getHost()+":"+enterArg.getPort()+">");
-            String next = scanner.nextLine();
-            //System.out.println(next);
-            if ("".equals(next)){
-                System.out.println("empty enter");
-            }else {
-                String[] s = next.split(" ");
-                List<String> strings = Arrays.asList(s);
-                if (strings != null && strings.size()> 0){
-                    if (Struct.GET.getStruct().equals(strings.get(0))){
-                        if (!"".equals(strings.get(1))){
-                            System.out.println(redisClientBIO.get(strings.get(1)));
-                        }else {
-                            System.out.println("Invalid key "+strings.get(1));
-                        }
-                    } else if (Struct.SET.getStruct().equals(strings.get(0))){
-                        if (!"".equals(strings.get(1))){
-                            if (!"".equals(strings.get(2))){
-                                System.out.println(redisClientBIO.set(strings.get(1),strings.get(2)));
-                            }else {
-                                System.out.println("Invalid value "+strings.get(2));
-                            }
-                        }else {
-                            System.out.println("Invalid key "+strings.get(1));
-                        }
-                    } else {
-                        System.out.println("Invalid strut "+strings.get(0));
-                    }
-                }
-            }
-        }
     }
 
     //校验参数是否合法
-    private static boolean isValidArg(String arg){
+    private static boolean isValidPort(String arg){
         if (arg.isEmpty() || arg.contains("-")){
-            throw new InvalidArgException("InvalidArg arg :"+arg);
+            throw new InvalidArgException("Invalid arg :"+arg);
+        }
+        return true;
+    }
+
+    private static boolean isValidAddr(String arg){
+        if (arg.isEmpty() || arg.contains("-")){
+            throw new InvalidArgException("Invalid address :"+arg);
         }
         return true;
     }
