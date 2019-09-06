@@ -30,7 +30,9 @@ public class RedisClientBIO implements RedisClient{
             this.outputStream = this.socket.getOutputStream();
             this.inputStream = this.socket.getInputStream();
         }catch (Exception e){
+            System.out.println("ERROR : fail to connect "+arg.getHost()+" "+arg.getPort());
             e.printStackTrace();
+            System.exit(0);
         }
     }
 

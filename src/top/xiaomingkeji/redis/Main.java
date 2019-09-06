@@ -23,7 +23,7 @@ public class Main {
 
     private static  Integer version = 1;
 
-    public static void main (String[] args) throws IOException {
+    public static void main (String[] args){
         System.out.println("welcome use myRedisClient V"+version+",author:liaohuiming77@live.com");
         Arg enterArg = null;
         //参数输入
@@ -52,13 +52,7 @@ public class Main {
         if (enterArg.getPort() == null){
             enterArg.setPort(Constants.DEFALUT_PORT);
         }
-
-        try {
-            redisClientBIO = RedisClientBIO.getInstance(enterArg);
-        }catch (Exception e){
-            e.printStackTrace();
-            return;
-        }
+        redisClientBIO = RedisClientBIO.getInstance(enterArg);
 
         if (redisClientBIO != null){
             System.out.println("connected "+enterArg.getHost()+" "+enterArg.getPort());
