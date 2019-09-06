@@ -31,7 +31,7 @@ public class Handler {
     public void handleGet( List<String> strings){
         int size = strings.size();
         if (size != 2){
-            System.out.println("Invalid statement");
+            System.out.println("Get command don`t match argument");
             return;
         }
         if (!"".equals(strings.get(1))){
@@ -44,7 +44,7 @@ public class Handler {
     public void handleSet( List<String> strings){
         int size = strings.size();
         if (size != 3){
-            System.out.println("Invalid statement");
+            System.out.println("Get command don`t match argument");
             return;
         }
         if (!"".equals(strings.get(1))){

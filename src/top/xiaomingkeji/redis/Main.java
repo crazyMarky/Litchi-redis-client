@@ -51,7 +51,15 @@ public class Main {
         //监听键盘的输入
         while (true){
             System.out.print(genHeadGuideText(enterArg));
-            String next = scanner.nextLine();
+            String next = "";
+
+            try{
+                next = scanner.nextLine();
+            }catch (Exception e){
+                System.out.println(genDisconnectText(enterArg));
+            }
+            System.out.println("input:"+next);
+
             if ("".equals(next)){
                 System.out.println("empty enter");
                 continue;
@@ -75,6 +83,10 @@ public class Main {
 
     private static String genHeadGuideText(Arg enterArg){
        return String.format("%s:%s>", enterArg.getHost(),enterArg.getPort());
+    }
+
+    private static String genDisconnectText(Arg enterArg){
+        return String.format("disconnected %s:%s", enterArg.getHost(),enterArg.getPort());
     }
 
     private static void checkArg(Arg enterArg){

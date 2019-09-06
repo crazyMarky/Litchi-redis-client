@@ -118,7 +118,11 @@ public class RedisClientBIO implements RedisClient{
                 }
             }
         }
-        return new String(result);
+        char[] result2 = new char[j];
+        for (int i = 0; i < result2.length; i++) {
+            result2[i]=result[i];
+        }
+        return new String(result2);
     }
 
     /**
@@ -140,7 +144,7 @@ public class RedisClientBIO implements RedisClient{
             inputStream.read(bytes);
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 outputStream.flush();
                 inputStream.close();
