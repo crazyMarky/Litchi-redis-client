@@ -1,6 +1,7 @@
 package top.xiaomingkeji.redis;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author liaohuiming
@@ -68,7 +69,8 @@ public class Handler {
             System.out.println("PING command don`t match argument");
             return;
         }
-        if (!"".equals(strings.get(1))){
+        strings = strings.stream().filter(x -> !x.isEmpty()).collect(Collectors.toList());
+        if (size == 2 ){
             System.out.println(redisClient.ping(strings.get(1)));
         }else {
             System.out.println(redisClient.ping());

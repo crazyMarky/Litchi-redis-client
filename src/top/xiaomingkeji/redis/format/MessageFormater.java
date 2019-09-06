@@ -57,6 +57,10 @@ public class MessageFormater {
         return formatGetMessage(message);
     }
 
+    public static   String formatPingPongMessage(char[] message){
+        return formatSetMessage(message);
+    }
+
 
 
 }

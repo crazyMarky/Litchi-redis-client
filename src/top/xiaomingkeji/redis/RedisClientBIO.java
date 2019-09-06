@@ -157,8 +157,8 @@ public class RedisClientBIO implements RedisClient{
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
         char[] array = decode.array();
-        String formatPingMessage = MessageFormater.formatPingMessage(array);
-        return  formatPingMessage;
+        String formatPingPongMessage = MessageFormater.formatPingPongMessage(array);
+        return  formatPingPongMessage;
     }
 
 
