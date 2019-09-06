@@ -52,7 +52,14 @@ public class Main {
         if (enterArg.getPort() == null){
             enterArg.setPort(Constants.DEFALUT_PORT);
         }
-        redisClientBIO = RedisClientBIO.getInstance(enterArg);
+
+        try {
+            redisClientBIO = RedisClientBIO.getInstance(enterArg);
+        }catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
+
         if (redisClientBIO != null){
             System.out.println("connected "+enterArg.getHost()+" "+enterArg.getPort());
         }
