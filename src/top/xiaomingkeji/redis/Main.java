@@ -54,11 +54,10 @@ public class Main {
         }
         redisClientBIO = RedisClientBIO.getInstance(enterArg);
 
-        if (redisClientBIO != null){
-            System.out.println("connected "+enterArg.getHost()+" "+enterArg.getPort());
-        }
+
         Scanner scanner = new Scanner(System.in);
         while (true){
+            System.out.print(enterArg.getHost()+":"+enterArg.getPort()+">");
             String next = scanner.nextLine();
             //System.out.println(next);
             if ("".equals(next)){
@@ -87,7 +86,6 @@ public class Main {
                         System.out.println("Invalid strut "+strings.get(0));
                     }
                 }
-
             }
         }
     }

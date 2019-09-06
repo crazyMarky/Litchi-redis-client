@@ -32,12 +32,8 @@ public class RedisClientBIO implements RedisClient{
         }catch (Exception e){
             System.out.println("ERROR : fail to connect "+arg.getHost()+" "+arg.getPort());
             e.printStackTrace();
-            System.exit(0);
+            System.exit(-1);
         }
-    }
-
-    private RedisClientBIO() {
-
     }
 
     /**
