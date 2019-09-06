@@ -35,7 +35,7 @@ public class Handler {
             return;
         }
         if (!"".equals(strings.get(1))){
-            System.out.print(redisClient.get(strings.get(1)));
+            System.out.println(redisClient.get(strings.get(1)));
         }else {
             System.out.println("Invalid key "+strings.get(1));
         }
@@ -49,7 +49,7 @@ public class Handler {
         }
         if (!"".equals(strings.get(1))){
             if (!"".equals(strings.get(2))){
-                System.out.print(redisClient.set(strings.get(1),strings.get(2)));
+                System.out.println(redisClient.set(strings.get(1),strings.get(2)));
             }else {
                 System.out.println("Invalid value "+strings.get(2));
             }

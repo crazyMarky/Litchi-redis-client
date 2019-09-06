@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -24,17 +25,28 @@ public class RedisClientBIO implements RedisClient{
     private OutputStream outputStream;
     private InputStream inputStream;
     private static final Charset charset = Charset.forName("UTF-8");
+    private static Arg arg;
 
     //创建连接
     private RedisClientBIO(Arg arg){
         try {
-            this.socket = new Socket(arg.getHost(),arg.getPort());
-            this.outputStream = this.socket.getOutputStream();
-            this.inputStream = this.socket.getInputStream();
+            this.arg=arg;
+            conneted();
         }catch (Exception e){
             System.out.println("ERROR : fail to connect "+arg.getHost()+" "+arg.getPort());
             e.printStackTrace();
             System.exit(-1);
+        }
+    }
+
+    //链接
+    private void conneted(){
+        try {
+            this.socket = new Socket(arg.getHost(),arg.getPort());
+            this.outputStream = this.socket.getOutputStream();
+            this.inputStream = this.socket.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -62,6 +74,7 @@ public class RedisClientBIO implements RedisClient{
      * @return
      */
     public String  set(final  String key,String value){
+        conneted();
         StringBuilder sb = new StringBuilder();
         sb.append("*3").append("\r\n");
         sb.append("$3").append("\r\n");
@@ -77,20 +90,30 @@ public class RedisClientBIO implements RedisClient{
             inputStream.read(bytes);
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                outputStream.flush();
+                inputStream.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
+        Buffer clear = byteBuffer.clear();
         char[] array = decode.array();
         String formatSetMessage = this.formatSetMessage(array);
         return  formatSetMessage;
     }
 
+    //去除不必要的元素
     private String formatSetMessage(char[] message){
         int j = 0;
         char[] result = new char[message.length];
         if (message[0] == '+'){
             for (int i = 1; i < message.length; i++) {
-                if (message[i]!='\r'||message[i]!='\n'||message[i]!='\u0000'){
+                if (message[i]!='\r'&&message[i]!='\n'&&message[i]!='\u0000'){
                     result[j++]=message[i];
                 }
             }
@@ -104,6 +127,7 @@ public class RedisClientBIO implements RedisClient{
      * @return
      */
     public String get(final  String key)  {
+        conneted();
         StringBuilder sb = new StringBuilder();
         sb.append("*2").append("\r\n");
         sb.append("$3").append("\r\n");
@@ -116,6 +140,14 @@ public class RedisClientBIO implements RedisClient{
             inputStream.read(bytes);
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                outputStream.flush();
+                inputStream.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         CharBuffer decode = charset.decode(byteBuffer);
@@ -124,6 +156,7 @@ public class RedisClientBIO implements RedisClient{
         return  formatGetMessage;
     }
 
+    //去除不必要的元素
     private  String formatGetMessage(char[] message){
         char[] result = null;
         char[] number;
@@ -150,10 +183,9 @@ public class RedisClientBIO implements RedisClient{
         for (int i = end+2; i <= numberInt+end+1; i++) {
             result[n++] = message[i];
         }
-        if (message[1]=='-'){
+        if (message[1]=='-' && message[2]=='1'){
             return "(nil)\n";
         }
-        result[result.length-1]='\n';
         return new String(result);
     }
 
