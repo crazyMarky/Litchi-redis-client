@@ -1,5 +1,7 @@
 package top.xiaomingkeji.redis;
 
+import top.xiaomingkeji.redis.model.Arg;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,8 +15,15 @@ public class Handler {
 
     private static Handler ourInstance = new Handler();
 
-    public static Handler getInstance(RedisClient redisClient1) {
-        redisClient = redisClient1;
+
+    public static Handler getInstance(Arg enterArg) {
+        try{
+            RedisClient redisClientBIO = RedisClientBIO.getInstance(enterArg);
+            redisClient = redisClientBIO;
+        }catch (Exception e){
+            System.out.println("Handler getInstance failed");
+            e.printStackTrace();
+        }
         return ourInstance;
     }
 

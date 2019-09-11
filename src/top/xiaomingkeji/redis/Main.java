@@ -41,15 +41,15 @@ public class Main {
                 }
             }
         }
-
-        //检查参数
+        //检查参数合法性
         checkArg(enterArg);
         //取出客户端实例
-        RedisClient redisClientBIO = RedisClientBIO.getInstance(enterArg);
-        handler = Handler.getInstance(redisClientBIO);
+        handler = Handler.getInstance(enterArg);
+        //获取标准输入流
         InputStream inputStream = System.in;
+        //包装方法
         Scanner scanner = new Scanner(inputStream);
-        //监听键盘的输入
+        //监听键盘
         while (true){
             String next = "";
             System.out.print(genHeadGuideText(enterArg));
@@ -59,7 +59,6 @@ public class Main {
                 System.out.println(genDisconnectText(enterArg));
             }
             if ("".equals(next)){
-                System.out.println("empty enter");
                 continue;
             }
             String[] s = next.split(" ");
@@ -106,6 +105,7 @@ public class Main {
         return true;
     }
 
+    //检查地址
     private static boolean isValidAddr(String arg){
         if (arg.isEmpty() || arg.contains("-")){
             throw new InvalidArgException("Invalid address :"+arg);

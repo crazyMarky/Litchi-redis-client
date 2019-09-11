@@ -48,7 +48,7 @@ public class MessageFormater {
             result[n++] = message[i];
         }
         if (message[1]=='-' && message[2]=='1'){
-            return "(nil)\n";
+            return "(nil)";
         }
         return new String(result);
     }
